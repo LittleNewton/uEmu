@@ -4,15 +4,15 @@ FROM ubuntu:20.04
 RUN apt-get update &&                           \
     DEBIAN_FRONTEND=noninteractive              \
     apt-get install -y --no-install-recommends  \
-    git zsh curl wget openssh-server
+    git zsh curl wget openssh-server apt-utils
 
 # Configure time zone.
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Install uEmu run-time dependencies.
-RUN dpkg --add-architecture i386 &&                                         \
-    apt-get update && apt-get -y dist-upgrade &&                            \
+RUN dpkg --add-architecture i386                                       &&   \
+    apt-get update && apt-get -y dist-upgrade                          &&   \
     apt-get install -y --no-install-recommends build-essential              \
     cmake wget texinfo flex bison python-dev python3-dev python3-venv       \
     python3-distro mingw-w64 lsb-release
@@ -29,15 +29,15 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive                        \
 
 # Install git repo.
 RUN mkdir -p /root/.bin && PATH="/root/.bin:${PATH}"                                    \
-    curl https://storage.googleapis.com/git-repo-downloads/repo > /root/.bin/repo &&    \
+    curl https://storage.googleapis.com/git-repo-downloads/repo > /root/.bin/repo  &&   \
     chmod a+rx /root/.bin/repo
 
 # Set up env and directories.
 
 ENV uEmuDIR=/root/uemu
 
-RUN mkdir -p /root/uemu/build && cd $uEmuDIR                               &&   \
-    /root/.bin/repo init -u https://github.com/MCUSec/manifest.git -b uEmu &&   \
+RUN mkdir -p /root/uemu/build && cd $uEmuDIR                                &&  \
+    /root/.bin/repo init -u https://github.com/MCUSec/manifest.git -b uEmu  &&  \
     /root/.bin/repo sync
 
 # Fix permissions
@@ -48,8 +48,8 @@ RUN wget -P /usr/include/x86_64-linux-gnu/asm \
     https://raw.githubusercontent.com/MCUSec/uEmu/main/ptracearm.h
 
 # Start build process
-RUN cd $uEmuDIR/build && make -f $uEmuDIR/Makefile &&   \
-    make -f $uEmuDIR/Makefile install &&                \
+RUN cd $uEmuDIR/build && make -f $uEmuDIR/Makefile  &&  \
+    make -f $uEmuDIR/Makefile install               &&  \
     cd $uEmuDIR/AFL && make && make install
 
 # Install Python Jinja lib
@@ -60,12 +60,12 @@ RUN apt-get update &&                           \
     pip install jinja2
 
 # Set up environment for new connections
-RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" &&         \
-    mkdir -p /root/.zsh &&                                                                          \
+RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"         && \
+    mkdir -p /root/.zsh                                                                          && \
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git                              \
-        /root/.zsh/zsh-syntax-highlighting.git                                           &&         \
+        /root/.zsh/zsh-syntax-highlighting.git                                                   && \
     git clone https://github.com/zsh-users/zsh-autosuggestions.git                                  \
-        /root/.zsh/zsh-autosuggestions.git                                               &&         \
+        /root/.zsh/zsh-autosuggestions.git                                                       && \
     echo 'source /root/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh' >> /root/.zshrc && \
     echo 'source /root/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh'         >> /root/.zshrc && \
     echo "export uEmuDIR=$uEmuDIR" >> ~/.zshrc
