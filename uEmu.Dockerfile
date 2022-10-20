@@ -63,9 +63,9 @@ RUN apt-get update &&                           \
 RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"         && \
     mkdir -p /root/.zsh                                                                          && \
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git                              \
-        /root/.zsh/zsh-syntax-highlighting.git                                                   && \
+        /root/.zsh/zsh-syntax-highlighting                                                       && \
     git clone https://github.com/zsh-users/zsh-autosuggestions.git                                  \
-        /root/.zsh/zsh-autosuggestions.git                                                       && \
+        /root/.zsh/zsh-autosuggestions                                                           && \
     echo 'source /root/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh' >> /root/.zshrc && \
     echo 'source /root/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh'         >> /root/.zshrc && \
     echo "export uEmuDIR=$uEmuDIR" >> ~/.zshrc
