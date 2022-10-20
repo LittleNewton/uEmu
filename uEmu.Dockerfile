@@ -4,7 +4,8 @@ FROM ubuntu:20.04
 RUN apt-get update &&                           \
     DEBIAN_FRONTEND=noninteractive              \
     apt-get install -y --no-install-recommends  \
-    git zsh curl wget openssh-server apt-utils
+    git zsh curl wget openssh-server apt-utils  \
+    vim
 
 # Configure time zone.
 ENV TZ=Asia/Shanghai
@@ -68,7 +69,8 @@ RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/inst
         /root/.zsh/zsh-autosuggestions                                                           && \
     echo 'source /root/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh' >> /root/.zshrc && \
     echo 'source /root/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh'         >> /root/.zshrc && \
-    echo "export uEmuDIR=$uEmuDIR" >> ~/.zshrc
+    echo "export uEmuDIR=$uEmuDIR" >> ~/.zshrc                                                   && \
+    sed -i 's~:/bin/bash$~:/usr/bin/zsh~' /etc/passwd
 
 # Installation done, get all repositories
 RUN cd $uEmuDIR                                                         && \
