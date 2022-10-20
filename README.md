@@ -71,6 +71,8 @@ docker build -f uEmu.Dockerfile -t uemu-arm:v1.0 .
 
 Now, you can create and run a container with image `uemu-arm:v1.0`.
 
+**Note**: In the Dockerfile, two environment variables can be modified by yourself. They are `TZ` (time zone) and `uEmuDIR`.
+
 ### 4.3 Source Code Installation
 
 **Note**:
@@ -123,7 +125,7 @@ make
 sudo make install
 ```
 
-### 4.4 Updating
+#### 4.3.5 Updating
 
 You can use the same Makefile to recompile μEmu either when changing it yourself or when pulling new versions through
 ``repo sync``. Note that the Makefile will not automatically reconfigure the packages; for deep changes you might need
