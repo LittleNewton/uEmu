@@ -1,8 +1,10 @@
 FROM ubuntu:20.04
 
+# Set docker build environment variables
+ENV DEBIAN_FRONTEND noninteractive
+
 # Install utils.
 RUN apt-get update &&                           \
-    DEBIAN_FRONTEND=noninteractive              \
     apt-get install -y --no-install-recommends  \
     git zsh curl wget openssh-server apt-utils  \
     vim
@@ -19,7 +21,7 @@ RUN dpkg --add-architecture i386                                       &&   \
     python3-distro mingw-w64 lsb-release
 
 # Install uEmu build dependencies.
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive                        \
+RUN apt-get update &&                                                       \
     apt-get install -y --no-install-recommends libdwarf-dev libelf-dev      \
     libelf-dev:i386 libboost-dev zlib1g-dev libjemalloc-dev nasm            \
     pkg-config libmemcached-dev libpq-dev libc6-dev-i386 binutils-dev       \
@@ -77,3 +79,8 @@ RUN cd $uEmuDIR                                                         && \
     git clone https://github.com/MCUSec/uEmu-unit_tests.git             && \
     git clone https://github.com/MCUSec/uEmu-real_world_firmware.git    && \
     git clone https://github.com/MCUSec/uEmu.git
+
+# Enable ssh service
+RUN service ssh start
+EXPOSE 22
+CMD ["/usr/sbin/sshd", "-D"]
