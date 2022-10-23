@@ -188,8 +188,8 @@ Usage: python3 <repo_path>/uEmu-helper.py <firmware_name> <config_file_name>  -k
 ```
 
 - arguments:
-  - kb KBFILENAME,       Configure the Knowledge Base filename used for μEmu fuzzing phase and μEmu will run under fuzzing phase. If KB file is not present, μEmu will run KB extraction phase by default.
-  - s SEEDFILENAME(optional),      Configure the seed filename to bootstrap fuzzing, if absent, μEmu will use random number(32 bit) for fuzzing.
+  - `-kb KBFILENAME` - Configure the Knowledge Base filename used for μEmu fuzzing phase and μEmu will run under fuzzing phase. If KB file is not present, μEmu will run KB extraction phase by default.
+  - `[-s SEEDFILENAME]` (optional) - Configure the seed filename to bootstrap fuzzing, if absent, μEmu will use random number(32 bit) for fuzzing.
 
 **Example**:
 
@@ -200,6 +200,7 @@ python3 uEmu-helper.py WYCINWYC.elf WYCNINWYC.cfg -kb WYCINWYC.elf-round1-state5
 ```
 
 Since μEmu relies on AFL for fuzzing input. Thus, you first need to launch AFL fuzzur via `./launch-AFL.sh` in **one terminal** to input test-cases and then launch μEmu via `./launch-uEmu.sh` in **another terminal** to consume the test-cases.
+
 The fuzzing results is stored in `<proj_dir>/<firmware>` folder. The log and KB files of addition round KB extraction phase are record in `<s2e-last>` folder.
 
 **NOTE**:
