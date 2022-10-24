@@ -1,34 +1,37 @@
-FROM ubuntu:20.04
+ARG BASE_IMAGE="ubuntu:20.04"
 
-# Set docker build environment variables
-ENV DEBIAN_FRONTEND noninteractive
+### BASE IMAGE
+FROM $BASE_IMAGE
+ARG BASE_IMAGE
 
-# Install utils.
-RUN apt-get update &&                           \
-    apt-get install -y --no-install-recommends  \
-    git zsh curl wget openssh-server apt-utils  \
-    vim
+# Copy dependencies lists into container. Note this
+# will rarely change so caching should still work well
+COPY ./dependencies/${BASE_IMAGE}*.txt /tmp/
 
-# Configure time zone.
+# Install utilities. -- Stage 0
+RUN [ -e /tmp/${BASE_IMAGE}_utils.txt ] && \
+    apt-get -qq update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -qq install -y --no-install-recommends curl $(cat /tmp/${BASE_IMAGE}_utils.txt | grep -o '^[^#]*') && \
+    apt-get clean
+
+# Install runtime dependencies. Firstly, Configure time zone.
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Install uEmu run-time dependencies.
-RUN dpkg --add-architecture i386                                       &&   \
-    apt-get update && apt-get -y dist-upgrade                          &&   \
-    apt-get install -y --no-install-recommends build-essential              \
-    cmake wget texinfo flex bison python-dev python3-dev python3-venv       \
-    python3-distro mingw-w64 lsb-release
+RUN [ -e /tmp/${BASE_IMAGE}_base.txt ] && \
+    dpkg --add-architecture i386 && \
+    apt-get -qq update && apt-get -y dist-upgrade &&\
+    DEBIAN_FRONTEND=noninteractive apt-get -qq install -y --no-install-recommends curl $(cat /tmp/${BASE_IMAGE}_base.txt | grep -o '^[^#]*') && \
+    apt-get clean
 
 # Install uEmu build dependencies.
-RUN apt-get update &&                                                       \
-    apt-get install -y --no-install-recommends libdwarf-dev libelf-dev      \
-    libelf-dev:i386 libboost-dev zlib1g-dev libjemalloc-dev nasm            \
-    pkg-config libmemcached-dev libpq-dev libc6-dev-i386 binutils-dev       \
-    libboost-system-dev libboost-serialization-dev libboost-regex-dev       \
-    libbsd-dev libpixman-1-dev libncurses5                                  \
-    libglib2.0-dev libglib2.0-dev:i386 python3-docutils libpng-dev          \
-    gcc-multilib g++-multilib gcc-9 g++-9 libtinfo5
+RUN [ -e /tmp/${BASE_IMAGE}_build.txt ] && \
+    apt-get -qq update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -qq install -y --no-install-recommends curl $(cat /tmp/${BASE_IMAGE}_build.txt | grep -o '^[^#]*') && \
+    apt-get clean && \
+    python3 -m pip install --upgrade --no-cache-dir "pip" && \
+    python3 -m pip install --upgrade --no-cache-dir "jinja2"
 
 # Install git repo.
 RUN mkdir -p /root/.bin && PATH="/root/.bin:${PATH}"                                    \
@@ -36,33 +39,23 @@ RUN mkdir -p /root/.bin && PATH="/root/.bin:${PATH}"                            
     chmod a+rx /root/.bin/repo
 
 # Set up env and directories.
-
 ENV uEmuDIR=/root/uemu
 
-RUN mkdir -p /root/uemu/build && cd $uEmuDIR                                &&  \
+# Sync uEmu core repositories.
+RUN mkdir -p ${uEmuDIR}/build && cd $uEmuDIR                                &&  \
     /root/.bin/repo init -u https://github.com/MCUSec/manifest.git -b uEmu  &&  \
-    /root/.bin/repo sync
-
-# Fix permissions
-RUN chmod +x $uEmuDIR/s2e/libs2e/configure
+    /root/.bin/repo sync && chmod +x $uEmuDIR/s2e/libs2e/configure
 
 # Get ptracearm.h
 RUN wget -P /usr/include/x86_64-linux-gnu/asm \
     https://raw.githubusercontent.com/MCUSec/uEmu/main/ptracearm.h
 
-# Start build process
+# Start uEmu building.
 RUN cd $uEmuDIR/build && make -f $uEmuDIR/Makefile  &&  \
     make -f $uEmuDIR/Makefile install               &&  \
-    cd $uEmuDIR/AFL && make && make install
+    cd $uEmuDIR/AFL && make -j "$(nproc)" && make install
 
-# Install Python Jinja lib
-RUN apt-get update &&                           \
-    DEBIAN_FRONTEND=noninteractive              \
-    apt-get install -y --no-install-recommends  \
-    python3-pip && pip3 install -U pip &&       \
-    pip install jinja2
-
-# Set up environment for new connections
+# Set up environment for new connections.
 RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"         && \
     mkdir -p /root/.zsh                                                                          && \
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git                              \
@@ -74,7 +67,7 @@ RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/inst
     echo "export uEmuDIR=$uEmuDIR" >> ~/.zshrc                                                   && \
     sed -i 's~:/bin/bash$~:/usr/bin/zsh~' /etc/passwd
 
-# Installation done, get all repositories
+# Download all test-unit and uEmu itself from GitHub
 RUN cd $uEmuDIR                                                         && \
     git clone https://github.com/MCUSec/uEmu-unit_tests.git             && \
     git clone https://github.com/MCUSec/uEmu-real_world_firmware.git    && \

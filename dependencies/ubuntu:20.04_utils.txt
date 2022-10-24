@@ -1,0 +1,9 @@
+# utilities
+# Note: If you want a container to work like a virtual machine, maybe you will need those packages.
+apt-utils
+curl
+git
+openssh-server
+vim
+wget
+zsh
