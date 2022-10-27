@@ -67,13 +67,13 @@ RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/inst
     echo "export uEmuDIR=$uEmuDIR" >> ~/.zshrc                                                   && \
     sed -i 's~:/bin/bash$~:/usr/bin/zsh~' /etc/passwd
 
-# Download all test-unit and uEmu itself from GitHub
+# Download all test-units and uEmu main repository from GitHub
 RUN cd $uEmuDIR                                                         && \
     git clone https://github.com/MCUSec/uEmu-unit_tests.git             && \
     git clone https://github.com/MCUSec/uEmu-real_world_firmware.git    && \
     git clone https://github.com/MCUSec/uEmu.git
 
-# Enable ssh service
+# Enable ssh service while starting contaniner
 RUN service ssh start
 EXPOSE 22
 CMD ["/usr/sbin/sshd", "-D"]

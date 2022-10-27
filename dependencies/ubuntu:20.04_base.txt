@@ -1,6 +1,6 @@
-# build needed
+# Without those tools, you will not be able to do any compilation job.
 
-# 
+# build tools
 bison
 build-essential
 cmake

@@ -1,3 +1,9 @@
+# Build dependencies 
+
+# Note: If you try to use code intelligence engine to highlight codes in Microsoft VSCode or something else,
+#       you would need libglib2.0-dev and llvm-dev.
+
+# build needed
 binutils-dev
 g++-9
 g++-multilib
@@ -25,3 +31,7 @@ nasm
 pkg-config
 python3-docutils
 zlib1g-dev
+
+# Highlight needed
+libglib2.0-dev
+llvm-dev
