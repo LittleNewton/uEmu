@@ -20,20 +20,10 @@ sudo apt-get -y install libdwarf-dev libelf-dev libelf-dev:i386             \
 # Additional requirement required by clang
 sudo apt-get install libtinfo5
 
-# install git repo;
-# 20.04 does only provide it as snap package, we opt in for manual installation
-mkdir -p ~/.bin
-PATH="${HOME}/.bin:${PATH}"
-curl https://storage.googleapis.com/git-repo-downloads/repo > ~/.bin/repo
-chmod a+rx ~/.bin/repo
-
 # setup env and directories
+git clone --recurse-submodules https://github.com/LittleNewton/uEmu.git uemu
 mkdir -p uemu/build
 export uEmuDIR=$PWD/uemu
-
-cd $uEmuDIR
-~/.bin/repo init -u https://github.com/MCUSec/manifest.git -b uEmu
-~/.bin/repo sync
 
 # fix permissions
 chmod +x $uEmuDIR/s2e/libs2e/configure

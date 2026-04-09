@@ -26,17 +26,21 @@ publisher = {{USENIX} Association},
 .
 ├── LICENSE
 ├── README.md
-├── docs                     # more documentation about implementation and configuration
+├── Makefile                 # symlink -> scripts/Makefile
+├── Makefile.docker          # symlink -> scripts/Makefile.docker
+├── scripts/                 # [submodule] build scripts (branch: arm-support)
+├── decree/                  # [submodule] DECREE support library
+├── qemu/                    # [submodule] modified QEMU (branch: uEmu)
+├── s2e/                     # [submodule] modified S2E 2.0 (branch: uEmu)
+├── AFL/                     # [submodule] modified AFL fuzzer (branch: uEmu)
+├── docs/                    # more documentation about implementation and configuration
 ├── uEmu-helper.py           # helper scripts to configurate μEmu based on configration file (e.g., μEmu.cfg)
 ├── launch-uEmu-template.sh  # template scripts to launch μEmu
 ├── launch-AFL-template.sh   # template scripts to launch AFL fuzzer
 ├── uEmu-config-template.lua # template config file of μEmu and S2E plugins
 ├── uEmu.Dockerfile
 ├── library.lua              # contains convenience functions for the uEmu-config.lua file.
-├── uEmu-unit_tests          # μEmu unit test samples and config files
-├── uEmu-fuzzing_tests       # μEmu fuzzing test samples (real-world MCU firmware) and config files
 ├── ptracearm.h
-├── totalbbrange.py          # IDA plugin for basic block range calculation
 ├── vagrant-bootstrap.sh     # bootstrap file for vagrant box
 └── Vagrantfile              # configuration file for vagrant box
 ```
@@ -49,7 +53,7 @@ For easy setup, a vagrant file for a virtual machine with a ready-to-use build o
 After installing vagrant, the following steps are required:
 
 ```bash
-git clone https://github.com/MCUSec/uEmu.git
+git clone --recurse-submodules https://github.com/LittleNewton/uEmu.git
 cd uEmu
 vagrant up  # this will take a while, please be patient
 vagrant ssh # connect to the virtual machine
@@ -64,7 +68,7 @@ Now, from inside the virtual machine, you have the contents of this repository a
 For running μEmu as a container, a Dockerfile is given. After installing docker, the following steps are required:
 
 ``` bash
-git clone https://github.com/MCUSec/uEmu.git
+git clone --recurse-submodules https://github.com/LittleNewton/uEmu.git
 cd uEmu
 docker build -f uEmu.Dockerfile -t uemu-arm:v1.0 .
 ```
@@ -89,15 +93,24 @@ You can check out all [required packages](https://github.com/MCUSec/uEmu/blob/ma
 
 #### 4.3.2 Checking out source code
 
-The μEmu source code can be obtained from the my git repository using the following commands.
+The μEmu source code can be obtained with standard `git submodule` commands (no `git-repo` needed):
 
 ```console
 export uEmuDIR=/home/user/uEmu  # uEmuDIR must be in your home folder (e.g., /home/user/uEmu)
-sudo apt-get install git-repo   # or follow instructions at https://gerrit.googlesource.com/git-repo/
+git clone https://github.com/LittleNewton/uEmu.git $uEmuDIR
 cd $uEmuDIR
-repo init -u https://github.com/MCUSec/manifest.git -b uEmu
-repo sync
+git submodule update --init --recursive
 ```
+
+This will clone the following components as git submodules:
+
+| Submodule | Branch | Description |
+|-----------|--------|-------------|
+| `scripts` | `arm-support` | Build scripts (Makefile, Makefile.docker) |
+| `decree` | `master` | DECREE support library |
+| `qemu` | `uEmu` | Modified QEMU with μEmu patches |
+| `s2e` | `uEmu` | Modified S2E 2.0 symbolic execution engine |
+| `AFL` | `uEmu` | Modified AFL fuzzer |
 
 This will set up the μEmu repositories in ``$uEmuDIR``.
 
@@ -128,9 +141,9 @@ sudo make install
 #### 4.3.5 Updating
 
 You can use the same Makefile to recompile μEmu either when changing it yourself or when pulling new versions through
-``repo sync``. Note that the Makefile will not automatically reconfigure the packages; for deep changes you might need
-to either start from scratch by issuing ``make clean`` or to force the reconfiguration of specific modules by deleting
-the corresponding files from the ``stamps`` subdirectory.
+``git submodule update --remote``. Note that the Makefile will not automatically reconfigure the packages; for deep
+changes you might need to either start from scratch by issuing ``make clean`` or to force the reconfiguration of
+specific modules by deleting the corresponding files from the ``stamps`` subdirectory.
 
 ## 5. Usage
 

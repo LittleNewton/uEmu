@@ -1,0 +1,19 @@
+[submodule "scripts"]
+	path = scripts
+	url = https://github.com/MCUSec/scripts.git
+	branch = arm-support
+[submodule "decree"]
+	path = decree
+	url = https://github.com/MCUSec/decree.git
+[submodule "qemu"]
+	path = qemu
+	url = https://github.com/MCUSec/qemu.git
+	branch = uEmu
+[submodule "s2e"]
+	path = s2e
+	url = https://github.com/MCUSec/s2e.git
+	branch = uEmu
+[submodule "AFL"]
+	path = AFL
+	url = https://github.com/MCUSec/AFL.git
+	branch = uEmu
